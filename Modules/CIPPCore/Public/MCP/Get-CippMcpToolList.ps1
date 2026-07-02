@@ -155,7 +155,10 @@ function Resolve-CippMcpNode {
     }
 
     if ($Node -is [System.Collections.IEnumerable]) {
-        return @($Node | ForEach-Object { Resolve-CippMcpNode -Node $_ -Spec $Spec -Depth ($Depth + 1) -Seen $Seen })
+        # DATAHOLD PATCH #001 (2026-07-02): unárna čiarka bráni PowerShell rozbaliť jednoprvkové pole na return,
+        # inak sa napr. jednoprvkové allOf serializuje ako objekt namiesto poľa (nevalidné JSON Schema draft 2020-12).
+        # Identické s upstream PR #2092 (zatvorený bez merge). Detail: C:\Projects\CIPP\PATCH-mcp-schema.md
+        return , @($Node | ForEach-Object { Resolve-CippMcpNode -Node $_ -Spec $Spec -Depth ($Depth + 1) -Seen $Seen })
     }
 
     return $Node
